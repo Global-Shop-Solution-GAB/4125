@@ -1,0 +1,216 @@
+Program.Sub.ScreenSU.Start
+Gui.F_CustDet..create
+Gui.F_CustDet..caption("TOTAL HOURS")
+Gui.F_CustDet..size(15270,6120)
+Gui.F_CustDet..minx(0)
+Gui.F_CustDet..miny(0)
+Gui.F_CustDet..position(0,0)
+Gui.F_CustDet..event(UnLoad,f_custdet_unload)
+Gui.F_CustDet..alwaysontop(False)
+Gui.F_CustDet..fontname("Arial")
+Gui.F_CustDet..fontsize(8)
+Gui.F_CustDet..forecolor(0)
+Gui.F_CustDet..BackColor(-2147483633)
+Gui.F_CustDet..controlbox(True)
+Gui.F_CustDet..maxbutton(True)
+Gui.F_CustDet..minbutton(True)
+Gui.F_CustDet..mousepointer(0)
+Gui.F_CustDet..moveable(True)
+Gui.F_CustDet..sizeable(True)
+Gui.F_CustDet..ShowInTaskBar(True)
+Gui.F_CustDet..titlebar(True)
+Gui.F_CustDet.lblWONumba.create(label,"Work Order Number",True,1935,255,1,195,255,True,0,Arial,8,-2147483633,0)
+Gui.F_CustDet.lblWONumba.defaultvalue("")
+Gui.F_CustDet.lblWONumba.controlgroup(0)
+Gui.F_CustDet.txtWONumba.create(textbox,"",True,1995,300,0,180,495,False,0,Arial,8,-2147483643,1)
+Gui.F_CustDet.txtWONumba.defaultvalue("")
+Gui.F_CustDet.txtWONumba.controlgroup(0)
+Gui.F_CustDet.lblX.create(label,"X - Link",True,1935,255,1,5220,5385,True,0,Arial,8,-2147483633,0)
+Gui.F_CustDet.lblX.defaultvalue("")
+Gui.F_CustDet.lblX.controlgroup(0)
+Gui.F_CustDet.lblT.create(label,"T - Task",True,1935,255,1,5220,4995,True,0,Arial,8,-2147483633,0)
+Gui.F_CustDet.lblT.defaultvalue("")
+Gui.F_CustDet.lblT.controlgroup(0)
+Gui.F_CustDet.lblO.create(label,"O - Outside Services",True,1995,255,1,2970,5430,True,0,Arial,8,-2147483633,0)
+Gui.F_CustDet.lblO.defaultvalue("")
+Gui.F_CustDet.lblO.controlgroup(0)
+Gui.F_CustDet.lblM.create(label,"M - Material",True,1500,255,1,2970,5040,True,0,Arial,8,-2147483633,0)
+Gui.F_CustDet.lblM.defaultvalue("")
+Gui.F_CustDet.lblM.controlgroup(0)
+Gui.F_CustDet.lblL.create(label,"L - Labor",True,1500,255,1,720,5430,True,0,Arial,8,-2147483633,0)
+Gui.F_CustDet.lblL.defaultvalue("")
+Gui.F_CustDet.lblL.controlgroup(0)
+Gui.F_CustDet.lblC.create(label,"C - Comments",True,1995,255,1,720,5040,True,0,Arial,8,-2147483633,0)
+Gui.F_CustDet.lblC.defaultvalue("")
+Gui.F_CustDet.lblC.controlgroup(0)
+Gui.F_CustDet.lblKeyTtl.create(label,"Type Description (See Type Above)",True,3000,255,1,225,4785,True,0,Arial,8,-2147483633,0)
+Gui.F_CustDet.lblKeyTtl.defaultvalue("")
+Gui.F_CustDet.lblKeyTtl.controlgroup(0)
+Gui.F_CustDet.gsWO.Create(GsGridControl)
+Gui.F_CustDet.gsWO.Size(14685,3690)
+Gui.F_CustDet.gsWO.Position(180,915)
+Gui.F_CustDet.lbl5.Create(Label,"Total Hours Worked",True,1020,375,0,12090,4800,True,0,"Arial",8,-2147483633,0)
+Gui.F_CustDet.lbl5.ForeColor(0)
+Gui.F_CustDet.lbl6.Create(Label,"Total Amount",True,1110,255,0,13815,4740,True,0,"Arial",8,-2147483633,0)
+Gui.F_CustDet.lbl6.ForeColor(0)
+Gui.F_CustDet.lblTotalHours.Create(Label,"",True,1005,255,0,12150,5235,True,0,"Arial",8,-2147483633,0)
+Gui.F_CustDet.lblTotalHours.BorderStyle(2)
+Gui.F_CustDet.lblTotalAmount.Create(Label,"",True,1005,255,0,13845,5235,True,0,"Arial",8,-2147483633,0)
+Gui.F_CustDet.lblTotalAmount.BorderStyle(2)
+Gui.F_CustDet.lblTotalAmount.ForeColor(0)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+
+'BN, FEB 9, 2017
+Variable.Local.bSec.Declare(Boolean)
+v.Local.fHours.Declare(float)
+v.Local.fAmt.Declare(float)
+V.Local..BulkDeclareString(sSql, sError, sReadRow, sHold)
+v.Local..BulkDeclareLong(iRowCnt,i,iLength, iCounter)
+
+
+
+f.Intrinsic.Control.If(Variable.Caller.Hook,=,13860)
+	'Check security
+	Function.Global.Security.IsInGroup(Variable.Caller.User,"WODET",V.Local.bSec)
+	Function.Intrinsic.Control.If(Variable.Local.bSec,<>,True)
+		V.Passed.GRID-ROW-SEL.Set(0)
+		V.Passed.GRID-COL-SEL.SET(0)
+		gui.F_CustDet.txtWONumba.Text(v.Passed.000001)
+		
+		F.Intrinsic.BDF.Load("AUX001","AUX001")
+		F.Intrinsic.BDF.ReadRowCount("AUX001",v.Local.iRowCnt)
+		
+		f.Intrinsic.Control.If(v.Local.iRowCnt,=,0)
+			Function.Intrinsic.UI.Msgbox("Work Order Information not found","Work Order Error")
+			Function.Intrinsic.Control.CallSub(F_custdet_unload)
+			F.Intrinsic.Control.ExitSub
+		F.Intrinsic.Control.EndIf
+		
+		v.Local.sSqL.Set("Select  rtrim(' ') as LINE, rtrim(' ') as Type, rtrim(' ') as Date, rtrim(' ') as Part_WorkCenter, rtrim(' ') as Description, rtrim(' ') as Good, rtrim(' ') as Scrap, rtrim(' ') as Units, rtrim(' ') as Hours, rtrim(' ') as Amount from Inventory_Mstr")
+		
+		Function.Data.DataTable.Create("WO_DT")
+		Function.Data.DataTable.AddColumn("WO_DT","Line", "String")
+		Function.Data.DataTable.AddColumn("WO_DT","Type", "String")
+		Function.Data.DataTable.AddColumn("WO_DT","Date", "String")
+		Function.Data.DataTable.AddColumn("WO_DT","Part_WorkCenter", "String")
+		Function.Data.DataTable.AddColumn("WO_DT","Description", "String")
+		Function.Data.DataTable.AddColumn("WO_DT","Good", "String")
+		Function.Data.DataTable.AddColumn("WO_DT","Scrap", "String")
+		Function.Data.DataTable.AddColumn("WO_DT","Units", "String")
+		Function.Data.DataTable.AddColumn("WO_DT","Hours", "String")
+		Function.Data.DataTable.AddColumn("WO_DT","Amount", "String")
+		
+		'Loop the BDF
+		f.Intrinsic.Math.Sub(V.Local.iRowCnt,1,v.Local.iRowCnt)
+		f.Intrinsic.Control.For(v.Local.i,0,V.Local.iRowCnt,1)
+			'Read data from AUX001
+			f.Intrinsic.BDF.ReadRow("AUX001",v.Local.i,v.Local.sReadRow)
+			f.Intrinsic.String.Split(v.Local.sReadRow,"|~|",v.Local.sReadRow)
+				Function.Data.DataTable.AddRowByMap("WO_DT", "Line*!*Type*!*Date*!*Part_WorkCenter*!*Description*!*Good*!*Scrap*!*Units*!*Hours*!*Amount",v.Local.sReadRow(0).Trim,V.Local.sReadRow(2).Trim,V.Local.sReadRow(3).Trim,v.Local.sReadRow(4).Trim,V.Local.sReadRow(5).Trim,V.Local.sReadRow(6).Trim,v.Local.sReadRow(7).Trim,V.Local.sReadRow(8).Trim,V.Local.sReadRow(9).Trim,V.Local.sReadRow(11).Trim)		
+		f.Intrinsic.Control.Next(v.Local.i)	
+			
+	
+
+
+		f.Intrinsic.Control.For(v.Local.iCounter, 0, v.DataTable.WO_DT.RowCount--, 1)
+				f.Intrinsic.String.Trim(Variable.DataTable.WO_DT(v.Local.iCounter).Type!FieldValString,v.Local.shold)
+				f.Intrinsic.Control.If(v.Local.sHold,<>,"Z")
+							f.Intrinsic.Math.Add(v.Local.fAmt, Variable.DataTable.WO_DT(v.Local.iCounter).AMOUNT!FieldValString, v.Local.fAmt)
+				f.Intrinsic.Control.endif				
+				f.Intrinsic.Math.Add(v.Local.fHours, Variable.DataTable.WO_DT(v.Local.iCounter).HOURS!FieldValString, v.Local.fHours)
+					
+		f.Intrinsic.Control.Next(v.Local.iCounter)
+		
+		gui.F_CustDet.lblTotalHours.Text(v.Local.fHours)
+		gui.F_CustDet.lblTotalAmount.Text(v.Local.fAmt)
+		
+		gui.F_CustDet.gsWO.AddGridViewFromDataTable("WO_GV","WO_DT")
+		gui.F_CustDet.gsWO.MainView("WO_GV")		
+		f.Intrinsic.Control.CallSub(FormatGridColumns)
+			
+		Gui.F_CustDet..Show
+	
+	f.Intrinsic.Control.endif
+	
+f.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_4123_CustWODetail.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Main.End
+
+Program.Sub.FormatGridColumns.Start
+'EMPLOYEE, MACHINE, Description_, Part invisible
+
+'MaxWidth, ReadOnly,CellHAlignment
+
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Line","MaxWidth","30")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Type","MaxWidth","50")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Date","MaxWidth","75")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Part_Workcenter","MaxWidth","150")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Description","MaxWidth","150")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Good","MaxWidth","100")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Scrap","MaxWidth","100")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Units","MaxWidth","100")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Hours","MaxWidth","100")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Amount","MaxWidth","100")
+
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Line","CellHAlignment","center")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Type","CellHAlignment","center")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Good","CellHAlignment","far")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Scrap","CellHAlignment","far")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Units","CellHAlignment","far")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Hours","CellHAlignment","far")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Amount","CellHAlignment","far")
+
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Line","HeaderHAlignment","Center") 
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Type","HeaderHAlignment","Center")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Date","HeaderHAlignment","Center")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Part_Workcenter","HeaderHAlignment","Center")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Description","HeaderHAlignment","Center")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Good","HeaderHAlignment","Center")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Scrap","HeaderHAlignment","Center")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Units","HeaderHAlignment","Center")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Hours","HeaderHAlignment","Center")
+gui.F_CustDet.gsWO.setColumnProperty("WO_GV","Amount","HeaderHAlignment","Center")
+
+GUI.F_CustDet.lblTotalHours.Alignment(1)
+GUI.F_CustDet.lblTotalAmount.Alignment(1)
+Program.Sub.FormatGridColumns.End
+
+Program.Sub.f_custdet_unload.Start
+Function.Intrinsic.Control.End
+
+Program.Sub.f_custdet_unload.End
+
+Program.Sub.Buildstyle.Start
+
+Program.Sub.Buildstyle.End
+
+Program.Sub.Comments.Start
+${$0$}$GCG_4123_CustWODetail$}$SISCO$}$6/28/2016$}$False
+${$3$}$0$}$$}$-1$}$-1$}$$}$1/1/1900$}$This project was created for Kosmo Machine, Inc. on June of 2016.
+
+
+This is a custom GAB script that will display custom work order detail information. The information will be identical to the data from the work order detail grid in the standard GSS system however the user will not have the ability to browse via the ?Amount? column.
+The purpose of this is the customer has quoters/planners that would like to see this specific information and cannot do so with the Work Order (No Dollars) or WO Detail standard report.
+This GAB script is to run from the Work Order header screen. The script will check to see if the user is a part of the WODET security group. If they are not the ?Details? button will be disabled and the ?Script 1? button will be activated with the custom GAB script.
+Customer will need to set up the WODET security group prior to installation. Customer is responsible for setting up security for the standard work order screens if certain users are not to access it.
+
+**Note: Given the information on the custom grid, just as with the standard WO detail screen, given certain parameters pay for Labor may be calculated by users.
+Program.Sub.Comments.End
+
